@@ -19,7 +19,8 @@ export class AppComponent {
     console.log('-------------------------------------------');
     const myOptions = {
       attrKey: 'attr',
-      textKey: 'textavlue'
+      textKey: 'textavlue',
+      mergeCDATA: false
     }
     const a = this.ngxXmlToJsonService.xmlToJson(this.xml, myOptions)
     console.log(a);

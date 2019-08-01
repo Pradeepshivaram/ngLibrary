@@ -6,7 +6,6 @@ import { Injectable } from '@angular/core';
 export class NgxXmlToJsonService {
   private parser: any;
   private mimeType:any = 'text/xml';
-  xml= `<contact-info><address category = "residence"><name>Tanmay Patil</name><company>TutorialsPoint</company><phone>(011) 123-4567</phone></address><address category = "commercial"/></contact-info>`;
   constructor() { 
     this.parser = new DOMParser();
   }
@@ -15,17 +14,12 @@ export class NgxXmlToJsonService {
     let jsonObj = Object.create(null);
     let obj = {};
     const options = { // set up the default options 
-      mergeCDATA: true, // extract cdata and merge with text
-      normalize: true, // collapse multiple spaces to single space
-      xmlns: true, // include namespaces as attribute in output
-      namespaceKey: '_ns', // tag name for namespace objects
+      mergeCDATA: false, // extract cdata and merge with text
+      cDataKey:'cData',
       textKey: 'text', // tag name for text nodes
       valueKey: 'value', // tag name for attribute values
       attrKey: 'attr', // tag for attr groups
       cdataKey: 'cdata', // tag for cdata nodes (ignored if mergeCDATA is true)
-      attrsAsObject: true, // if false, key is used as prefix to name, set prefix to '' to merge children and attrs.
-      stripAttrPrefix: true, // remove namespace prefixes from attributes
-      childrenAsArray: true // force children into arrays
     };
     // update the options
     for(let prop in myOptions ) {
@@ -57,7 +51,7 @@ export class NgxXmlToJsonService {
       case 4 : // CDATA_SECTION_NODE
         obj = doc.nodeValue;
         break;
-      case 4 : // PROCESSING_INSTRUCTION_NODE
+      case 7 : // PROCESSING_INSTRUCTION_NODE
         obj = doc.nodeValue;
         break;
       default:
@@ -70,15 +64,15 @@ export class NgxXmlToJsonService {
       } else {
         doc.childNodes.forEach(node => {
           let cData: any;
-          let nodeName = node.nodeName === '#text' ? opt.textKey : node.nodeName;
+          let nodeName = node.nodeType === 3 ? opt.textKey : node.nodeName;
           if(obj[nodeName] === undefined) {
-            if( opt.mergeCDATA && node.nodeType === 4) {
+            if( node.nodeType === 4 ){
               cData = this.convertToJson(node,opt);
+              if(!opt.mergeCDATA){
+                obj[opt.cDataKey] = cData;
+              }
             } else {
-              obj[nodeName] = this.convertToJson(node,opt);
-            }
-            if(cData) {
-
+              obj[nodeName] = cData === undefined ? this.convertToJson(node,opt) : `${cData}${this.convertToJson(node,opt)}`;
             }
           } else {
             const previousNode = obj[nodeName];
