@@ -1,24 +1,72 @@
 # NgxXmlToJson
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.0.3.
+Angular 14 module to convert xml to json.
 
-## Code scaffolding
+## Installation
 
-Run `ng generate component component-name --project ngx-xml-to-json` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ngx-xml-to-json`.
-> Note: Don't forget to add `--project ngx-xml-to-json` or else it will be added to the default project in your `angular.json` file. 
+```
+npm install ngx-xml-to-json --save
+```
 
-## Build
+## Example
 
-Run `ng build ngx-xml-to-json` to build the project. The build artifacts will be stored in the `dist/` directory.
+```typescript
+import { Component } from '@angular/core';
+import { NgxXmlToJsonService } from 'ngx-xml-to-json';
 
-## Publishing
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+   xml= `<contact-info><address category = "residence" type = "sale" ><name color='white'><![CDATA[ Welcome to TutorialsPoint]]>Tanmay Patil</name><company>TutorialsPoint</company><phone>(011) 123-4567</phone></address><address/><personal category = "commercial"> i dont know</personal></contact-info>`;
+  constructor(private ngxXmlToJsonService: NgxXmlToJsonService) {
+    const options = { // set up the default options 
+      textKey: 'text', // tag name for text nodes
+      attrKey: 'attr', // tag for attr groups
+      cdataKey: 'cdata', // tag for cdata nodes (ignored if mergeCDATA is true)
+    };
+    const obj = this.ngxXmlToJsonService.xmlToJson(this.xml, options)
+    console.log(obj);
+  }
+}
+```
 
-After building your library with `ng build ngx-xml-to-json`, go to the dist folder `cd dist/ngx-xml-to-json` and run `npm publish`.
 
-## Running unit tests
+## Result 
 
-Run `ng test ngx-xml-to-json` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```json
+{
+    "contact-info": {
+        "address":[
+            {
+                "attr" : {
+                    "category": "residence",
+                    "type": "sale"
+                },
+                "company": {
+                    "text": "TutorialsPoint"
+                },
+                "name": {
+                    "attr" : {
+                        "color": "white"
+                    },
+                    "cData": "Welcome to TutorialsPoint",
+                    "text": "Tanmay Patil"
+                },
+                "phone": {
+                    "text": "(011) 123-4567"
+                }
+            }
+        ],
+        "personal": {
+            "attr" : {
+                "category": "commercial"
+            },
+            "text": "I don't know"
+        }
+    }
+}
+```
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
